@@ -1,10 +1,3 @@
-variable "vpc_cidr" {}
-variable "public_subnets" { type = list(string) }
-variable "private_subnets" { type = list(string) }
-variable "azs" { type = list(string) }
-variable "env" { default = "dev" }
-variable "project_name" { default = "3-TIER-WEB-APP" }
-
 # ----------------------
 # VPC
 # ----------------------
@@ -52,9 +45,6 @@ resource "aws_subnet" "private" {
   }
 }
 
-
-//Lower to edit soon
-
 # ----------------------
 # Internet Gateway
 # ----------------------
@@ -63,23 +53,7 @@ resource "aws_internet_gateway" "this" {
 
   tags = {
     Name = "${var.project_name}-${var.env}-igw"
-  }
-}
-
-
-# ----------------------
-# NAT Gateway (for private subnets to reach internet)
-# ----------------------
-resource "aws_eip" "nat" {
-  vpc = true
-}
-
-resource "aws_nat_gateway" "this" {
-  allocation_id = aws_eip.nat.id
-  subnet_id     = aws_subnet.public[0].id
-
-  tags = {
-    Name = "${var.project_name}-${var.env}-nat"
+    Env  = var.env
   }
 }
 
@@ -96,6 +70,7 @@ resource "aws_route_table" "public" {
 
   tags = {
     Name = "${var.project_name}-${var.env}-public-rt"
+    Env  = var.env
   }
 }
 
@@ -105,47 +80,26 @@ resource "aws_route_table_association" "public" {
   route_table_id = aws_route_table.public.id
 }
 
-resource "aws_route_table" "private" {
-  vpc_id = aws_vpc.this.id
-
-  route {
-    cidr_block     = "0.0.0.0/0"
-    nat_gateway_id = aws_nat_gateway.this.id
-  }
+# ----------------------
+# Security Groups
+# ----------------------
+resource "aws_security_group" "allow_all_outbound" {
+  name        = "${var.project_name}-${var.env}-sg"
+  description = "Allow all outbound traffic"
+  vpc_id      = aws_vpc.this.id
 
   tags = {
-    Name = "${var.project_name}-${var.env}-private-rt"
+    Name        = "${var.project_name}-${var.env}-sg"
+    Environment = var.env
   }
 }
 
-resource "aws_route_table_association" "private" {
-  count          = length(aws_subnet.private)
-  subnet_id      = aws_subnet.private[count.index].id
-  route_table_id = aws_route_table.private.id
-}
-
-# ----------------------
-# Application Load Balancer
-# ----------------------
-resource "aws_lb" "this" {
-  name               = "${var.env}-alb"
-  internal           = false
-  load_balancer_type = "application"
-  security_groups    = [] # add later
-  subnets            = aws_subnet.public[*].id
-
-  enable_deletion_protection = true
-
+resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_egress" {
+  security_group_id = aws_security_group.allow_all_outbound.id
+  ip_protocol       = "-1"        # All protocols
+  cidr_ipv4         = "0.0.0.0/0" # Allow all outbound traffic
   tags = {
-    Name = "${var.project_name}-${var.env}-alb"
-    Env  = var.env
+    Name        = "${var.project_name}-${var.env}-sg-egress"
+    Environment = var.env
   }
-}
-
-output "vpc_id" {
-  value = aws_vpc.this.id
-}
-
-output "alb_dns_name" {
-  value = aws_lb.this.dns_name
 }
