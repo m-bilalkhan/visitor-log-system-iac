@@ -83,9 +83,8 @@ resource "aws_route_table_association" "public" {
 # ----------------------
 # Security Groups
 # ----------------------
-resource "aws_security_group" "allow_all_outbound" {
+resource "aws_security_group" "this" {
   name        = "${var.project_name}-${var.env}-sg"
-  description = "Allow all outbound traffic"
   vpc_id      = aws_vpc.this.id
 
   tags = {
@@ -95,11 +94,21 @@ resource "aws_security_group" "allow_all_outbound" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_egress" {
-  security_group_id = aws_security_group.allow_all_outbound.id
+  security_group_id = aws_security_group.this.id
+  description = "Allow all outbound traffic"
   ip_protocol       = "-1"        # All protocols
   cidr_ipv4         = "0.0.0.0/0" # Allow all outbound traffic
   tags = {
     Name        = "${var.project_name}-${var.env}-sg-egress"
     Environment = var.env
   }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "example" {
+  security_group_id = aws_security_group.this.id
+  cidr_ipv4   = "0.0.0.0/0" # Allow all inbound traffic To
+  description = "Allow all inbound traffic"
+  from_port   = 80
+  ip_protocol = "tcp"
+  to_port     = 80
 }
