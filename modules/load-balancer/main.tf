@@ -1,3 +1,19 @@
+# ----------------------
+# Target Group
+# ----------------------
+locals {
+  tg_names = var.env == "prod" ? ["-blue-", "-green-"] : [""]
+}
+resource "aws_lb_target_group" "test" {
+  for_each = toset(local.tg_names)
+  #Default target type is instance
+  name     = "${var.project_name}-${var.env}${each.key}lb-tg"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = v
+}
+
+
 resource "aws_lb" "this" {
   name               = "${var.project_name}-${var.env}-lb"
   internal           = false
