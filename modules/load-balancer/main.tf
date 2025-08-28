@@ -2,12 +2,12 @@
 # Target Group
 # ----------------------
 locals {
-  tg_names = var.env == "prod" ? ["-blue-", "-green-"] : ["-"]
+  tg_names = var.env == "prod" ? ["blue", "green"] : ["blue"]
 }
-resource "aws_lb_target_group" "test" {
+resource "aws_lb_target_group" "lb_tg" {
   for_each = toset(local.tg_names)
   #Default target type is instance
-  name     = "${var.project_name}-${var.env}${each.key}lb-tg"
+  name     = "${var.project_name}-${var.env}-${each.key}-lb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -25,7 +25,7 @@ resource "aws_lb_target_group" "test" {
 # ----------------------
 # Bucket for Load Balancer Logs
 # ----------------------
-//maybe create it here or one big s3 bucket in both env for this project
+//bucket will be created in s3 module and bucket id will be passed to this module
 # ----------------------
 # Load Balancer
 # ----------------------
@@ -39,13 +39,40 @@ resource "aws_lb" "this" {
   enable_deletion_protection = true
 
   access_logs {
-    bucket  = aws_s3_bucket.lb_logs.id
-    prefix  = "${var.env}-lb-logs"
+    bucket  = var.s3_bucket_id
+    prefix  = "logs/load-balancer"
     enabled = true
   }
 
   tags = {
     Name = "${var.project_name}-${var.env}-lb"
     Env  = var.env
+  }
+}
+
+# ----------------------
+# Listners
+# ----------------------
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type = "forward"
+    forward {
+      dynamic "target_group" {
+
+        for_each = aws_lb_target_group.lb_tg
+        content {
+          arn    = target_group.value.arn
+          weight = lookup(
+            lookup(var.tg_weights, var.env, {}),
+            target_group.key,
+            100
+          )
+        }
+      }
+    }
   }
 }
