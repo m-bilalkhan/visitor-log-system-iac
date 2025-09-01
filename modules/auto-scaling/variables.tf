@@ -1,0 +1,7 @@
+variable "security_group_id" { type = string }
+variable "env" { default = "dev" }
+variable "project_name" { default = "3-TIER-WEB-APP" }
+variable "vpc_id" { type = string }
+variable "packer_based_ami_id" { type = string }
+variable "azs" { type = list(string) }
+variable "target_group_arns" { type = list(string) }
