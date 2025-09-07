@@ -22,10 +22,7 @@ resource "aws_lb_target_group" "lb_tg" {
     unhealthy_threshold = 2
   }
 }
-# ----------------------
-# Bucket for Load Balancer Logs
-# ----------------------
-//bucket will be created in s3 module and bucket id will be passed to this module
+
 # ----------------------
 # Load Balancer
 # ----------------------

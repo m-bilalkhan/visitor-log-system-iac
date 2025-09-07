@@ -71,3 +71,28 @@ resource "aws_vpc_security_group_ingress_rule" "allow_http_from_alb" {
     Env = var.env
   }
 }
+
+# ----------------------
+# Security Group For Database
+# ----------------------
+resource "aws_security_group" "db_sg" {
+  name        = "${var.project_name}-${var.env}-db-sg"
+  vpc_id      = var.vpc_id
+
+  tags = {
+    Name        = "${var.project_name}-${var.env}-db-sg"
+    Env = var.env
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_postgres_from_web" {
+  security_group_id = aws_security_group.db_sg.id
+  description = "Allow inbound traffic on port 5432 from web application"
+  from_port   = 5432
+  ip_protocol = "tcp"
+  to_port     = 5432
+  tags = {
+    Name        = "${var.project_name}-${var.env}-db-sg-ingress"
+    Env = var.env
+  } 
+}
