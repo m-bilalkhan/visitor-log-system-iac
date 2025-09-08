@@ -80,7 +80,7 @@ module "database" {
 
   vpc_security_group_ids = [module.security_groups.aws_db_sg_id]
   create_db_subnet_group = true
-  subnet_ids             = [module.networking.private_subnets]
+  subnet_ids             = module.networking.private_subnets
 
   backup_retention_period = 7
   backup_window           = "03:00-04:00"

@@ -16,12 +16,12 @@ data "aws_subnets" "public" {
 # Target Group
 # ----------------------
 locals {
-  tg_names = var.env == "prod" ? ["blue", "green"] : ["blue"]
+  tg_names = var.env == "prod" ? ["blue", "green"] : ["dev"]
 }
 resource "aws_lb_target_group" "lb_tg" {
   for_each = toset(local.tg_names)
   #Default target type is instance
-  name     = "${var.project_name}-${var.env}-${each.key}-lb-tg"
+  name     = "${var.project_name}-${each.key}-lb-tg"
   port     = 80
   protocol = "HTTP"
   vpc_id   = var.vpc_id
@@ -45,7 +45,7 @@ resource "aws_lb" "this" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.security_group_id]
-  subnets            = [for subnet in data.aws_subnets.public : subnet.id]
+  subnets            =  data.aws_subnets.public.ids
 
   enable_deletion_protection = true
 
