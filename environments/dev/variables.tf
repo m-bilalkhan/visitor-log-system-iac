@@ -28,3 +28,7 @@ variable "tg_weights" {
     description = "Target group weights per environment"
     type        = map(map(number))
 }
+variable "aws_route53_zone_name" {
+  description = "The name of the Route 53 hosted zone"
+  type        = string
+}

@@ -94,3 +94,15 @@ module "database" {
       Env  = var.env
     }
 }
+
+# ----------------------
+# Route 53 Module
+# ----------------------
+module "route53" {
+  source = "../../modules/route53"
+  env = var.env
+  project_name = var.project_name
+  aws_route53_zone_name = var.aws_route53_zone_name
+  region = var.region
+  alb_arn = module.load_balancer.alb_arn
+}
