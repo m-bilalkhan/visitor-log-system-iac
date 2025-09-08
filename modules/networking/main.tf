@@ -26,6 +26,7 @@ resource "aws_subnet" "public" {
     Name = "${var.project_name}-${var.env}-public-${count.index + 1}"
     Tier = "public"
     Env  = var.env
+    VPC = aws_vpc.this.id
   }
 }
 
@@ -42,6 +43,7 @@ resource "aws_subnet" "private" {
     Name = "${var.project_name}-${var.env}-private-${count.index + 1}"
     Tier = "private"
     Env  = var.env
+    VPC = aws_vpc.this.id
   }
 }
 

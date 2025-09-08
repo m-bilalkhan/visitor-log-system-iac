@@ -11,7 +11,7 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
-resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_egress" {
+resource "aws_vpc_security_group_egress_rule" "allow_alb_all_outbound_egress" {
   security_group_id = aws_security_group.alb_sg.id
   description = "Allow all outbound traffic"
   ip_protocol       = "-1"        # All protocols
@@ -48,7 +48,7 @@ resource "aws_security_group" "web_sg" {
   }
 }
 
-resource "aws_vpc_security_group_egress_rule" "allow_all_outbound_egress" {
+resource "aws_vpc_security_group_egress_rule" "allow_web_all_outbound_egress" {
   security_group_id = aws_security_group.web_sg.id
   description = "Allow all outbound traffic"
   ip_protocol       = "-1"        # All protocols
@@ -91,6 +91,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_postgres_from_web" {
   from_port   = 5432
   ip_protocol = "tcp"
   to_port     = 5432
+  referenced_security_group_id = aws_security_group.web_sg.id
   tags = {
     Name        = "${var.project_name}-${var.env}-db-sg-ingress"
     Env = var.env

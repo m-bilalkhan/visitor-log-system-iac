@@ -1,4 +1,18 @@
 # ----------------------
+# Subnets
+# ----------------------
+data "aws_subnets" "public" {
+  filter {
+    name   = "tag:Tier"
+    values = ["public"]
+  }
+  filter {
+    name   = "vpc-id"
+    values = [var.vpc_id]
+  }
+}
+
+# ----------------------
 # Target Group
 # ----------------------
 locals {
@@ -31,7 +45,7 @@ resource "aws_lb" "this" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.security_group_id]
-  subnets            = [for subnet in aws_subnet.public : subnet.id]
+  subnets            = [for subnet in data.aws_subnets.public : subnet.id]
 
   enable_deletion_protection = true
 

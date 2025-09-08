@@ -15,13 +15,13 @@ data "aws_lb" "this" {
 # Route 53 Records
 # ----------------------
 resource "aws_route53_record" "this" {
-  zone_id = aws_route53_zone.main.zone_id
+  zone_id = data.aws_route53_zone.main.zone_id
   name    = var.env == "dev" ? "${var.env}." : var.env == "staging" ? "${var.env}." : "" + "${var.project_name}.${var.aws_route53_zone_name}"
   type    = "A"
 
   alias {
-    name                   = aws_lb.this.dns_name
-    zone_id                = aws_lb.this.zone_id
+    name                   = data.aws_lb.this.dns_name
+    zone_id                = data.aws_lb.this.zone_id
     evaluate_target_health = true
   }
 
