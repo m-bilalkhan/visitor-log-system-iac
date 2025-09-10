@@ -6,3 +6,4 @@ variable "packer_based_ami_id" { type = string }
 variable "azs" { type = list(string) }
 variable "target_group_arns" { type = list(string) }
 variable "instance_type" { type = string }
+variable "region" { type = string}

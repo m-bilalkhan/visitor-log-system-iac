@@ -11,6 +11,9 @@ on:
 jobs:
   call-deploy:
     uses: ./.github/workflows/terraform-deploy-dev.yaml
+    permissions:
+      id-token: write
+      contents: read
     with:
       environment: dev
       region: ap-south-1
