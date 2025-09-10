@@ -1,6 +1,6 @@
 variable "security_group_id" { type = string }
 variable "env" { default = "dev" }
-variable "project_name" { default = "Visitor-Log-System" }
+variable "project_name" { default = "visitor-log-system" }
 variable "vpc_id" { type = string }
 variable "s3_bucket_id" { type = string }
 variable "tg_weights" {
@@ -8,3 +8,4 @@ variable "tg_weights" {
   type        = map(map(number))
   default     = {}
 }
+variable "region" { type = string}

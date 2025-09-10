@@ -1,0 +1,73 @@
+name: Terraform Deploy Dev
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      region:
+        required: true
+        type: string
+    secrets:
+      oidc_role_name:
+        required: true
+      aws_account_id:
+        required: true
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.5
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.aws_account_id }}:role/${{ secrets.oidc_role_name }}
+          aws-region: ${{ inputs.region }}
+
+      - name: Resolve AMI ID
+        id: resolve-ami
+        run: |
+          if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
+            echo "ami_id=${{ github.event.client_payload.ami_id }}" >> $GITHUB_OUTPUT
+          else
+            AMI_ID=$(aws ec2 describe-images \
+              --owners self \
+              --filters "Name=name,Values=visitor-log-system:development" \
+              --query "Images | sort_by(@, &CreationDate)[-1].ImageId" \
+              --output text)
+
+            if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
+              echo "❌ No AMI found, failing pipeline."
+              exit 1
+            fi
+
+            echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Terraform Init
+        working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
+        run: terraform init -input=false
+      
+      - name: Terraform Plan
+        working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
+        run: terraform plan \
+          -var "ami_id=${{ steps.resolve-ami.outputs.ami_id }}" \
+          -out=tfplan
+      
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
+        run: terraform apply -auto-approve tfplan

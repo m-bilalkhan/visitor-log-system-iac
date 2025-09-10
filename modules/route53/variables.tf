@@ -1,5 +1,5 @@
 variable "env" { default = "dev" }
-variable "project_name" { default = "Visitor-Log-System" }
+variable "project_name" { default = "visitor-log-system" }
 variable "aws_route53_zone_name" {
   description = "The name of the Route 53 hosted zone"
   type        = string

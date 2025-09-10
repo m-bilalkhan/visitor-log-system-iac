@@ -73,20 +73,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "name" {
 }
 
 # -----------------------------
-# DynamoDB table for state locking
-# -----------------------------
-resource "aws_dynamodb_table" "tf_lock" {
-  name         = "${var.project_name}-${var.env}-terraform-state-lock"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
-
-  tags = {
-    Name = "${var.project_name}-${var.env}-terraform-state-lock"
-    Env  = var.env
-  }
+# s3 alb log policy
+#-----------------------------
+resource "aws_s3_bucket_policy" "alb_logs_policy" {
+  bucket = aws_s3_bucket.this.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = "logdelivery.elasticloadbalancing.amazonaws.com"
+        }
+        Action = "s3:PutObject"
+        Resource = "${aws_s3_bucket.this.arn}/*"
+      }
+    ]
+  })
 }

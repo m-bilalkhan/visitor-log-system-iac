@@ -26,7 +26,7 @@ resource "aws_launch_template" "launch_template" {
     }
   }
 
-  instance_type = "t2.micro"
+  instance_type = var.instance_type
 
   monitoring {
     enabled = true
@@ -62,18 +62,20 @@ resource "aws_autoscaling_group" "bar" {
     max_healthy_percentage = 120
   }
   force_delete              = false
-  target_group_arns = [var.target_group_arns]
+  target_group_arns = var.target_group_arns
 
   tag {
-    key                = "Name"
-    value              = "${var.project_name}-${var.env}-ASG"
+    key                 = "Name"
+    value               = "${var.project_name}-${var.env}-asg"
+    propagate_at_launch = true
+  }
+
+  tag {
+    key                 = "Env"
+    value               = var.env
+    propagate_at_launch = true
   }
   
-  tag {
-    key                = "Env"
-    value              = {var.env}
-  }
-
   timeouts {
     delete = "15m"
   }

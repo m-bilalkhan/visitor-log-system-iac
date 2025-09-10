@@ -45,13 +45,13 @@ resource "aws_lb" "this" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [var.security_group_id]
-  subnets            =  data.aws_subnets.public.ids
+  subnets            =  tolist(data.aws_subnets.public.ids)
 
-  enable_deletion_protection = true
+  enable_deletion_protection = false
 
   access_logs {
     bucket  = var.s3_bucket_id
-    prefix  = "logs/load-balancer"
+    prefix  = "logs/"+ var.region +"/load-balancer"
     enabled = true
   }
 
@@ -73,7 +73,6 @@ resource "aws_lb_listener" "http" {
     type = "forward"
     forward {
       dynamic "target_group" {
-
         for_each = aws_lb_target_group.lb_tg
         content {
           arn    = target_group.value.arn

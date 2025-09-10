@@ -50,6 +50,21 @@ module "load_balancer" {
   security_group_id = module.security_groups.aws_alb_sg_id
   s3_bucket_id      = module.s3.s3_bucket_id
   tg_weights        = var.tg_weights
+  region            = var.region
+}
+
+# ----------------------
+# Auto Scaling Module
+# ----------------------
+module "auto_scaling" {
+  source            = "../../modules/auto-scaling"
+  env               = var.env
+  vpc_id            = module.networking.vpc_id
+  azs = var.availability_zones
+  packer_based_ami_id = var.packer_based_ami_id
+  instance_type      =  var.instance_type
+  security_group_id = module.security_groups.aws_web_sg_id
+  target_group_arns = module.load_balancer.target_group_arns
 }
 
 # ----------------------
@@ -59,10 +74,10 @@ module "database" {
   source  = "terraform-aws-modules/rds/aws"
   version = "~> 6.12.0"
 
-  identifier = "${var.project_name}-${var.env}-db"
+  identifier = "${lower(var.project_name)}-${var.env}-db"
 
   engine               = "postgres"
-  engine_version       = "15.5"
+  engine_version       = "15"
   family               = "postgres15"
   major_engine_version = "15"
   instance_class       = "db.t3.micro"
@@ -70,7 +85,7 @@ module "database" {
   allocated_storage     = 20
   max_allocated_storage = 35
 
-  db_name  = "${var.project_name}-db"
+  db_name = replace(var.project_name, "-", "")
   username = "root"
   password = "password" # best: use SSM or Secrets Manager
   port     = 5432

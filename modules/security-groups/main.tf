@@ -61,7 +61,7 @@ resource "aws_vpc_security_group_egress_rule" "allow_web_all_outbound_egress" {
 
 resource "aws_vpc_security_group_ingress_rule" "allow_http_from_alb" {
   security_group_id = aws_security_group.web_sg.id
-  cidr_ipv4   = aws_security_group.alb_sg.id
+  referenced_security_group_id = aws_security_group.alb_sg.id
   description = "Allow all inbound traffic on port 80 to the load balancer"
   from_port   = 80
   ip_protocol = "tcp"

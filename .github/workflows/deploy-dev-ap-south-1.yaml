@@ -1,0 +1,19 @@
+name: Deploy Dev (ap-south-1)
+
+on:
+  push:
+    branches:
+      - main
+  repository_dispatch:
+    types: [deploy-dev]
+  workflow_dispatch:
+
+jobs:
+  call-deploy:
+    uses: ./.github/workflows/terraform-deploy-dev.yml
+    with:
+      environment: dev
+      region: ap-south-1
+    secrets:
+      oidc_role_name: ${{ secrets.OIDC_ROLE_NAME }}
+      aws_account_id: ${{ secrets.AWS_ACCOUNT_ID }}

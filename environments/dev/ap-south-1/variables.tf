@@ -1,9 +1,10 @@
 variable "region" {
   description = "The AWS region to create resources in."
   type        = string
+  default = "ap-south-1"
 }
 variable "env" {
-  description = "The environment to deploy (e.g., dev, staging, prod)."
+  description = "The environment to deploy"
   type        = string
   default     = "dev"
 }
@@ -23,12 +24,16 @@ variable "availability_zones" {
   description = "List of availability zones to use."
   type        = list(string)
 }
-variable "project_name" { default = "Visitor-Log-System" }
+variable "project_name" { default = "visitor-log-system" }
 variable "tg_weights" {
   description = "Target group weights per environment"
   type        = map(map(number))
 }
 variable "aws_route53_zone_name" {
   description = "The name of the Route 53 hosted zone"
+  type        = string
+}
+variable "instance_type" {
+  description = "EC2 instance type"
   type        = string
 }
