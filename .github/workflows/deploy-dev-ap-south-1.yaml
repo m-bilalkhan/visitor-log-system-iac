@@ -10,7 +10,7 @@ on:
 
 jobs:
   call-deploy:
-    uses: ./terraform-deploy-dev.yml
+    uses: ./.github/workflows/terraform-deploy-dev.yaml
     with:
       environment: dev
       region: ap-south-1
