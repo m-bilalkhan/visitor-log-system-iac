@@ -63,9 +63,7 @@ jobs:
       
       - name: Terraform Plan
         working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
-        run: terraform plan \
-          -var "ami_id=${{ steps.resolve-ami.outputs.ami_id }}" \
-          -out=tfplan
+        run: terraform plan -var "ami_id=${{ steps.resolve-ami.outputs.ami_id }}" -out=tfplan
       
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
