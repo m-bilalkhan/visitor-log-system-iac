@@ -19,34 +19,12 @@ resource "aws_launch_template" "launch_template" {
   
   image_id = "${var.packer_based_ami_id}"
 
-  user_data = base64encode(<<-EOF
-              #!/bin/bash
-              set -e
-
-              REGION="${var.region}"
-              ENV_PATH="/${var.project_name}/${var.env}"
-
-              # Fetch all parameters from SSM Parameter Store
-              PARAMS=$(aws ssm get-parameters-by-path \
-                --path "$ENV_PATH" \
-                --with-decryption \
-                --region $REGION \
-                --query "Parameters[*].{Name:Name,Value:Value}" \
-                --output text)
-
-              # Overwrite /home/ec2-user/.env
-              ENV_FILE="/home/ec2-user/.env"
-              rm -f $ENV_FILE
-
-              echo "$PARAMS" | while read Name Value; do
-                Key=$(basename "$Name")
-                echo "${Key^^}=$Value" >> $ENV_FILE
-              done
-
-              chown ec2-user:ec2-user $ENV_FILE
-              systemctl enable docker-compose-app.service
-              systemctl start docker-compose-app.service
-              EOF
+  user_data = base64encode(
+    templatefile("./user_data.sh.tpl", {
+      region       = var.region
+      project_name = var.project_name
+      env          = var.env
+    })
   )
 
   instance_initiated_shutdown_behavior = "terminate"
