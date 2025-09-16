@@ -5,7 +5,7 @@ on:
     branches:
       - main
   repository_dispatch:
-    types: [deploy-dev]
+    types: [deploy-to-dev]
   workflow_dispatch:
 
 jobs:
