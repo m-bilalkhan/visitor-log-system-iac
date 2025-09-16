@@ -15,7 +15,7 @@ provider "aws" {
 # Networking Module
 # ----------------------
 module "networking" {
-  source          = "../../modules/networking"
+  source          = "../../../modules/networking"
   env             = var.env
   vpc_cidr        = var.vpc_cidr
   azs             = var.availability_zones
@@ -27,7 +27,7 @@ module "networking" {
 # Security Groups Module
 # ----------------------
 module "security_groups" {
-  source = "../../modules/security-groups"
+  source = "../../../modules/security-groups"
   env    = var.env
   vpc_id = module.networking.vpc_id
 }
@@ -36,7 +36,7 @@ module "security_groups" {
 # S3 Module
 # ----------------------
 module "s3" {
-  source = "../../modules/s3"
+  source = "../../../modules/s3"
   env    = var.env
 }
 
@@ -44,7 +44,7 @@ module "s3" {
 # Load Balancer Module
 # ----------------------
 module "load_balancer" {
-  source            = "../../modules/load-balancer"
+  source            = "../../../modules/load-balancer"
   env               = var.env
   vpc_id            = module.networking.vpc_id
   security_group_id = module.security_groups.aws_alb_sg_id
@@ -138,7 +138,7 @@ resource "aws_ssm_parameter" "db_host" {
 # Auto Scaling Module
 # ----------------------
 module "auto_scaling" {
-  source            = "../../modules/auto-scaling"
+  source            = "../../../modules/auto-scaling"
   env               = var.env
   region            = var.region
   project_name     = var.project_name
@@ -154,7 +154,7 @@ module "auto_scaling" {
 # Route 53 Module
 # ----------------------
 module "route53" {
-  source                = "../../modules/route53"
+  source                = "../../../modules/route53"
   env                   = var.env
   project_name          = var.project_name
   aws_route53_zone_name = var.aws_route53_zone_name
