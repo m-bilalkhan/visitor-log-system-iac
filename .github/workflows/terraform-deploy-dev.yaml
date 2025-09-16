@@ -45,7 +45,7 @@ jobs:
           else
             AMI_ID=$(aws ec2 describe-images \
               --owners self \
-              --filters "Name=name,Values=visitor-log-system-development" \
+              --filters "Name=name,Values=visitor-log-system-dev" \
               --query "Images | sort_by(@, &CreationDate)[-1].ImageId" \
               --output text)
 
