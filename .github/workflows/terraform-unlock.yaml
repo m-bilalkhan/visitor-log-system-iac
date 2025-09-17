@@ -1,0 +1,40 @@
+name: Terraform Unlock
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Which environment lock to remove (dev/prod)"
+        required: true
+        default: "dev"
+      region:
+        description: "AWS Region"
+        required: true
+        default: "ap-south-1"
+
+jobs:
+  unlock:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # Authenticate to AWS using OIDC + IAM Role
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.aws_account_id }}:role/${{ secrets.oidc_role_name }}
+          aws-region: ${{ inputs.region }}
+
+      # Remove the stale .tflock file from S3
+      - name: Remove stale Terraform lockfile
+        run: |
+          LOCK_PATH="terraform/state/${{ github.event.inputs.environment }}/${{ github.event.inputs.region }}.tfstate.tflock"
+          
+          echo "Deleting lock: $LOCK_PATH"
+          aws s3 rm s3://visitor-log-system-dev-bucket/$LOCK_PATH || true
