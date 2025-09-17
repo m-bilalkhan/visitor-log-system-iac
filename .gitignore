@@ -8,5 +8,5 @@
 *.tfstate.backup
 *.tfstate.lock.info
 
-*.tfvars
+
 *lock.hcl
