@@ -59,7 +59,7 @@ module "load_balancer" {
 resource "aws_ssm_parameter" "db_name" {
   name  = "/${var.project_name}/${var.env}/db_name"
   type  = "String"
-  value = replace(var.project_name, "-", "") + "_db"
+  value = format("%s_db", replace(var.project_name, "-", ""))
 }
 
 resource "aws_ssm_parameter" "db_password" {
@@ -144,7 +144,7 @@ module "auto_scaling" {
   project_name     = var.project_name
   vpc_id            = module.networking.vpc_id
   azs = var.availability_zones
-  packer_based_ami_id = var.packer_based_ami_id
+  packer_based_ami_id = var.ami_id
   instance_type      =  var.instance_type
   security_group_id = module.security_groups.aws_web_sg_id
   target_group_arns = module.load_balancer.target_group_arns

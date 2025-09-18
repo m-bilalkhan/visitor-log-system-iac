@@ -51,7 +51,7 @@ resource "aws_lb" "this" {
 
   access_logs {
     bucket  = var.s3_bucket_id
-    prefix  = "logs/"+ var.region +"/load-balancer"
+    prefix  = "logs/${var.region}/load-balancer"
     enabled = true
   }
 
