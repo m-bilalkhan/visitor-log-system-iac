@@ -16,7 +16,7 @@ rm -f $ENV_FILE
 
 echo "$PARAMS" | while read Name Value; do
   Key=$(basename "$Name")
-  echo "${Key^^}=$Value" >> $ENV_FILE
+  echo "$${Key^^}=$Value" >> $ENV_FILE
 done
 
 chown ec2-user:ec2-user $ENV_FILE
