@@ -127,6 +127,8 @@ module "database" {
   deletion_protection = false
   skip_final_snapshot = true
 
+  kms_key_id        = "alias/aws/rds"
+
   tags = {
     Name = "${var.project_name}-${var.env}-DB"
     Env  = var.env
