@@ -40,9 +40,6 @@ resource "aws_launch_template" "launch_template" {
     cpu_credits = "standard"
   }
 
-  disable_api_stop        = true
-  disable_api_termination = true
-
   ebs_optimized = true
 
   iam_instance_profile {
