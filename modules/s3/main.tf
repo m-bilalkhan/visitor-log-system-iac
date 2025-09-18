@@ -9,7 +9,7 @@ data "aws_s3_bucket" "this" {
 # s3 lifecycle policies
 #-----------------------------
 resource "aws_s3_bucket_lifecycle_configuration" "name" {
-  bucket = aws_s3_bucket.this.id
+  bucket = data.aws_s3_bucket.this.id
 
   rule {
     id     = "log-loadbalancer-lifecycle-rule"
@@ -50,7 +50,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "name" {
 # s3 alb log policy
 #-----------------------------
 resource "aws_s3_bucket_policy" "alb_logs_policy" {
-  bucket = aws_s3_bucket.this.id
+  bucket = data.aws_s3_bucket.this.id
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -60,7 +60,7 @@ resource "aws_s3_bucket_policy" "alb_logs_policy" {
           Service = "logdelivery.elasticloadbalancing.amazonaws.com"
         }
         Action = "s3:PutObject"
-        Resource = "${aws_s3_bucket.this.arn}/*"
+        Resource = "${data.aws_s3_bucket.this.arn}/*"
       }
     ]
   })
