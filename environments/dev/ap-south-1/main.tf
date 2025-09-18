@@ -47,7 +47,7 @@ module "load_balancer" {
   source            = "../../../modules/load-balancer"
   env               = var.env
   vpc_id            = module.networking.vpc_id
-  public_subnet_ids =        = module.networking.public_subnets
+  public_subnet_ids = module.networking.public_subnets
   security_group_id = module.security_groups.aws_alb_sg_id
   s3_bucket_id      = module.s3.s3_bucket_id
   tg_weights        = var.tg_weights
