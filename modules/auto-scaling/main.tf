@@ -20,7 +20,7 @@ resource "aws_launch_template" "launch_template" {
   image_id = "${var.packer_based_ami_id}"
 
   user_data = base64encode(
-    templatefile("./user_data.sh.tpl", {
+    templatefile("${path.module}/user_data.sh.tpl", {
       region       = var.region
       project_name = var.project_name
       env          = var.env
