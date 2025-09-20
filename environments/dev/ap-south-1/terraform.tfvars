@@ -10,4 +10,4 @@ tg_weights = {
 }
 aws_route53_zone_name = "bilalcloudventures.com"
 project_name = "visitor-log-system"
-instance_type = "t2.micro"
+instance_type = "t3.micro"
