@@ -1,8 +1,9 @@
 # ----------------------
 # Create Instance Profile
 # ----------------------
-data "aws_iam_instance_profile" "this" {
+resource "aws_iam_instance_profile" "this" {
   name = "EC2AccessSSMParameterStoreReadOnly"
+  role = "EC2AccessSSMParameterStoreReadOnly"
 }
 
 # ----------------------
@@ -20,7 +21,7 @@ resource "aws_launch_template" "launch_template" {
   ebs_optimized = true
 
   iam_instance_profile {
-    name = data.aws_iam_instance_profile.this.name
+    name = aws_iam_instance_profile.this.name
   }
   
   image_id = "${var.packer_based_ami_id}"
