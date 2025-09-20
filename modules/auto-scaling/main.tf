@@ -1,35 +1,10 @@
 # ----------------------
-# Create IAM Role for EC2 to access SSM Parameter Store
-# ----------------------
-resource "aws_iam_role" "ec2_role" {
-  name = "EC2AccessSSMParameterStoreReadOnly"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [{
-      Effect = "Allow",
-      Principal = {
-        Service = "ec2.amazonaws.com"
-      },
-      Action = "sts:AssumeRole"
-    }]
-  })
-}
-
-# ----------------------
-# Attach Policy to the Role
-# ----------------------
-resource "aws_iam_role_policy_attachment" "ssm_access" {
-  role       = aws_iam_role.ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
-}
-
-# ----------------------
 # Create Instance Profile
 # ----------------------
-resource "aws_iam_instance_profile" "this" {
+data "aws_iam_instance_profile" "this" {
   name = "EC2AccessSSMParameterStoreReadOnly"
-  role = aws_iam_role.ec2_role.name
 }
+
 # ----------------------
 # Launch Template
 # ----------------------
@@ -45,7 +20,7 @@ resource "aws_launch_template" "launch_template" {
   ebs_optimized = true
 
   iam_instance_profile {
-    name = aws_iam_instance_profile.this.name
+    name = data.aws_iam_instance_profile.this.name
   }
   
   image_id = "${var.packer_based_ami_id}"

@@ -45,8 +45,8 @@ jobs:
           else
             AMI_ID=$(aws ec2 describe-images \
               --owners self \
-              --filters "Name=name,Values=visitor-log-system-dev" \
-              --query "Images | sort_by(@, &CreationDate)[-1].ImageId" \
+              --filters "Name=tag:Project,Values=visitor-log-system" \
+              --query "Images | sort_by(@, &Tags[?Key=='BuildTime'].Value)[-1].ImageId" \
               --output text)
 
             if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
