@@ -36,15 +36,6 @@ resource "aws_launch_template" "launch_template" {
 
   instance_initiated_shutdown_behavior = "terminate"
 
-  instance_market_options {
-    market_type = "spot"
-    spot_options {
-      instance_interruption_behavior = "terminate"
-      max_price                     = "0.01"
-      spot_instance_type            = "one-time"
-    }
-  }
-
   instance_type = var.instance_type
 
   monitoring {
@@ -64,13 +55,25 @@ resource "aws_launch_template" "launch_template" {
 # ----------------------
 # Auto Scaling Group
 # ----------------------
-resource "aws_autoscaling_group" "bar" {
+resource "aws_autoscaling_group" "asg" {
   name_prefix               = "${var.project_name}-${var.env}-"
   max_size                  = 5
   min_size                  = 1
   availability_zones        = var.azs
-  launch_template {
-    id      = aws_launch_template.launch_template.id
+
+  mixed_instances_policy {
+    instances_distribution {
+      on_demand_base_capacity                  = 0
+      on_demand_percentage_above_base_capacity = 0
+      spot_allocation_strategy                 = "lowest-price"
+      spot_instance_pools                      = 2
+    }
+
+    launch_template {
+      launch_template_specification {
+        launch_template_id = aws_launch_template.launch_template.id
+      }
+    }
   }
 
   health_check_grace_period = 300
