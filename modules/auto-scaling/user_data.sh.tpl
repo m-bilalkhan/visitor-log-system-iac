@@ -11,8 +11,7 @@ PARAMS=$(aws ssm get-parameters-by-path \
   --query "Parameters[*].{Name:Name,Value:Value}" \
   --output text)
 
-ENV_FILE="/home/ec2-user/.env"
-rm -f $ENV_FILE
+ENV_FILE="/home/ec2-user/app/.env"
 
 echo "$PARAMS" | while read Name Value; do
   Key=$(basename "$Name")
@@ -20,5 +19,3 @@ echo "$PARAMS" | while read Name Value; do
 done
 
 chown ec2-user:ec2-user $ENV_FILE
-systemctl enable docker-compose-app.service
-systemctl start docker-compose-app.service

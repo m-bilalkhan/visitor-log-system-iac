@@ -46,6 +46,7 @@ jobs:
             AMI_ID=$(aws ec2 describe-images \
               --owners self \
               --filters "Name=tag:Project,Values=visitor-log-system" \
+              --filters "Name=tag:Env,Values=dev" \
               --query "Images | sort_by(@, &Tags[?Key=='BuildTime'].Value|[0])[-1].ImageId" \
               --output text)
 
