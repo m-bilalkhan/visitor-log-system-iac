@@ -18,7 +18,7 @@ resource "aws_launch_template" "launch_template" {
 
   disable_api_termination = false
 
-  ebs_optimized = true
+  ebs_optimized = false
 
   iam_instance_profile {
     name = aws_iam_instance_profile.this.name
