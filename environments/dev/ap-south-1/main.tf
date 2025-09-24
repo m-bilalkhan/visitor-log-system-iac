@@ -57,37 +57,9 @@ module "load_balancer" {
 #----------------------
 # Store DB Params in SSM
 #----------------------
-resource "aws_ssm_parameter" "db_name" {
-  name  = "/${var.project_name}/${var.env}/db_name"
-  type  = "String"
-  value = format("%s_db", replace(var.project_name, "-", ""))
-  overwrite = true
-}
-
-resource "aws_ssm_parameter" "db_password" {
-  name  = "/${var.project_name}/${var.env}/db_password"
-  type  = "SecureString"
-  value = random_password.db_password.result
-  overwrite = true
-}
-
 resource "random_password" "db_password" {
   length  = 16
   special = true
-}
-
-resource "aws_ssm_parameter" "db_user" {
-  name  = "/${var.project_name}/${var.env}/db_user"
-  type  = "String"
-  value = "root"
-  overwrite = true
-}
-
-resource "aws_ssm_parameter" "db_port" {
-  name  = "/${var.project_name}/${var.env}/db_port"
-  type  = "String"
-  value = "5432"
-  overwrite = true
 }
 
 #----------------------
@@ -115,10 +87,10 @@ module "database" {
   allocated_storage     = 20
   max_allocated_storage = 35
 
-  db_name = aws_ssm_parameter.db_name.value
-  username = aws_ssm_parameter.db_user.value
-  password = aws_ssm_parameter.db_password.value
-  port     = aws_ssm_parameter.db_port.value
+  db_name  = format("%s_db", replace(var.project_name, "-", ""))e
+  username = "root"
+  password = random_password.db_password.result
+  port     = "5432"
 
   multi_az            = false
   publicly_accessible = false
@@ -146,6 +118,27 @@ resource "aws_ssm_parameter" "db_host" {
   name  = "/${var.project_name}/${var.env}/db_host"
   type  = "String"
   value = module.database.db_instance_endpoint
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "db_password" {
+  name  = "/${var.project_name}/${var.env}/db_password"
+  type  = "SecureString"
+  value = random_password.db_password.result
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "db_user" {
+  name  = "/${var.project_name}/${var.env}/db_user"
+  type  = "String"
+  value = module.database.db_instance_username
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "db_port" {
+  name  = "/${var.project_name}/${var.env}/db_port"
+  type  = "String"
+  value = module.database.db_instance_port
   overwrite = true
 }
 
