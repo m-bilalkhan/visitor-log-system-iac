@@ -87,7 +87,7 @@ module "database" {
   allocated_storage     = 20
   max_allocated_storage = 35
 
-  db_name  = format("%s_db", replace(var.project_name, "-", ""))e
+  db_name  = format("%s_db", replace(var.project_name, "-", ""))
   username = "root"
   password = random_password.db_password.result
   port     = "5432"
