@@ -114,12 +114,20 @@ module "database" {
   }
 }
 
-resource "aws_ssm_parameter" "db_host" {
-  name  = "/${var.project_name}/${var.env}/db_host"
+resource "aws_ssm_parameter" "db_name" {
+  name  = "/${var.project_name}/${var.env}/db_name"
   type  = "String"
-  value = module.database.db_instance_endpoint
+  value = module.database.db_instance_name
   overwrite = true
 }
+
+resource "aws_ssm_parameter" "db_password" {
+  name  = "/${var.project_name}/${var.env}/db_password"
+  type  = "SecureString"
+  value = random_password.db_password.result
+  overwrite = true
+}
+
 
 resource "aws_ssm_parameter" "db_password" {
   name  = "/${var.project_name}/${var.env}/db_password"
