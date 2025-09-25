@@ -54,9 +54,7 @@ jobs:
               echo "❌ No AMI found, failing pipeline."
               exit 1
             fi
-
             echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
-            echo "ami_id=$AMI_ID"
           fi
 
       - name: Terraform Init
