@@ -117,7 +117,7 @@ module "database" {
 resource "aws_ssm_parameter" "db_host" {
   name  = "/${var.project_name}/${var.env}/db_host"
   type  = "String"
-  value = module.database.db_instance_endpoint
+  value = module.database.address
   overwrite = true
 }
 
