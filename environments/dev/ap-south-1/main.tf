@@ -117,36 +117,31 @@ module "database" {
 resource "aws_ssm_parameter" "db_host" {
   name  = "/${var.project_name}/${var.env}/db_host"
   type  = "String"
-  value = module.database.address
-  overwrite = true
+  value = module.database.instance_db_address
 }
 
 resource "aws_ssm_parameter" "db_name" {
   name  = "/${var.project_name}/${var.env}/db_name"
   type  = "String"
   value = format("%s_db", replace(var.project_name, "-", ""))
-  overwrite = true
 }
 
 resource "aws_ssm_parameter" "db_password" {
   name  = "/${var.project_name}/${var.env}/db_password"
   type  = "SecureString"
   value = random_password.db_password.result
-  overwrite = true
 }
 
 resource "aws_ssm_parameter" "db_user" {
   name  = "/${var.project_name}/${var.env}/db_user"
   type  = "String"
   value = "root"
-  overwrite = true
 }
 
 resource "aws_ssm_parameter" "db_port" {
   name  = "/${var.project_name}/${var.env}/db_port"
   type  = "String"
   value = 5432
-  overwrite = true
 }
 
 # ----------------------
