@@ -128,7 +128,7 @@ module "database" {
 resource "aws_ssm_parameter" "db_host" {
   name  = "/${var.project_name}/${var.env}/db_host"
   type  = "String"
-  value = module.database.instance_db_address
+  value = module.database.db_instance_address
 }
 
 resource "aws_ssm_parameter" "db_name" {
