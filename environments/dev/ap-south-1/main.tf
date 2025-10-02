@@ -62,6 +62,17 @@ resource "random_password" "db_password" {
   special = true
 }
 
+resource "aws_ssm_parameter" "db_password" {
+  name  = "/${var.project_name}/${var.env}/db_password"
+  type  = "SecureString"
+  value = random_password.db_password.result
+  overwrite = false
+}
+
+data "aws_ssm_parameter" "db_password" {
+  name = "/${var.project_name}/${var.env}/db_password"
+}
+
 #----------------------
 # KMS Key for RDS
 #----------------------
@@ -89,7 +100,7 @@ module "database" {
 
   db_name  = format("%s_db", replace(var.project_name, "-", ""))
   username = "root"
-  password = random_password.db_password.result
+  password = data.aws_ssm_parameter.db_password.value
   port     = "5432"
 
   multi_az            = false
@@ -124,12 +135,6 @@ resource "aws_ssm_parameter" "db_name" {
   name  = "/${var.project_name}/${var.env}/db_name"
   type  = "String"
   value = format("%s_db", replace(var.project_name, "-", ""))
-}
-
-resource "aws_ssm_parameter" "db_password" {
-  name  = "/${var.project_name}/${var.env}/db_password"
-  type  = "SecureString"
-  value = random_password.db_password.result
 }
 
 resource "aws_ssm_parameter" "db_user" {
