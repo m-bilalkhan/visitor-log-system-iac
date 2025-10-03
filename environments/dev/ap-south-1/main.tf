@@ -156,11 +156,10 @@ module "auto_scaling" {
   source            = "../../../modules/auto-scaling"
   env               = var.env
   region            = var.region
-  project_name     = var.project_name
-  vpc_id            = module.networking.vpc_id
-  azs = var.availability_zones
+  project_name      = var.project_name
+  public_subnet     = module.networking.public_subnets
   packer_based_ami_id = var.ami_id
-  instance_type      =  var.instance_type
+  instance_type     =  var.instance_type
   security_group_id = module.security_groups.aws_web_sg_id
   target_group_arns = module.load_balancer.target_group_arns
 }

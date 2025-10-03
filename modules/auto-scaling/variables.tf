@@ -1,9 +1,8 @@
 variable "security_group_id" { type = string }
 variable "env" { default = "dev" }
 variable "project_name" { default = "visitor-log-system" }
-variable "vpc_id" { type = string }
+variable "public_subnet" { type = list(string) }
 variable "packer_based_ami_id" { type = string }
-variable "azs" { type = list(string) }
 variable "target_group_arns" { type = list(string) }
 variable "instance_type" { type = string }
 variable "region" { type = string}

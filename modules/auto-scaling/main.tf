@@ -61,7 +61,7 @@ resource "aws_autoscaling_group" "asg" {
   name_prefix               = "${var.project_name}-${var.env}-"
   max_size                  = 5
   min_size                  = 1
-  availability_zones        = var.azs
+  vpc_zone_identifier       = var.public_subnet
 
   mixed_instances_policy {
     instances_distribution {
