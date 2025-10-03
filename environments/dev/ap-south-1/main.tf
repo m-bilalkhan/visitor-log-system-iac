@@ -55,25 +55,6 @@ module "load_balancer" {
 }
 
 #----------------------
-# Store DB Params in SSM
-#----------------------
-resource "random_password" "db_password" {
-  length  = 16
-  special = true
-}
-
-resource "aws_ssm_parameter" "db_password" {
-  name  = "/${var.project_name}/${var.env}/db_password"
-  type  = "SecureString"
-  value = random_password.db_password.result
-  overwrite = false
-}
-
-data "aws_ssm_parameter" "db_password" {
-  name = "/${var.project_name}/${var.env}/db_password"
-}
-
-#----------------------
 # KMS Key for RDS
 #----------------------
 data "aws_kms_alias" "this" {
@@ -100,8 +81,11 @@ module "database" {
 
   db_name  = format("%s_db", replace(var.project_name, "-", ""))
   username = "root"
-  password = data.aws_ssm_parameter.db_password.value
   port     = "5432"
+
+  manage_master_user_password_rotation              = true
+  master_user_password_rotate_immediately           = false
+  master_user_password_rotation_schedule_expression = "rate(15 days)"
 
   multi_az            = false
   publicly_accessible = false
