@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-REGION="${region}"
-ENV_PATH="/${project_name}/${env}"
+REGION="$${region}"
+ENV_PATH="/$${project_name}/$${env}"
 
 ENV_FILE="/home/ec2-user/app/.env"
 
@@ -22,7 +22,7 @@ PARAMS=$(aws ssm get-parameters-by-path \
 # Write all SSM params to .env
 echo "$PARAMS" | while read Name Value; do
   Key=$(basename "$Name")
-  echo "${Key^^}=$Value" >> "$ENV_FILE"
+  echo "$${Key^^}=$Value" >> "$ENV_FILE"
 done
 
 # -------------------------------------
@@ -36,7 +36,7 @@ if [ -n "$DB_HOST" ] && [ -n "$DB_USER" ]; then
   echo "Generating RDS IAM auth token..."
   DB_PASSWORD=$(aws rds generate-db-auth-token \
     --hostname "$DB_HOST" \
-    --port "${DB_PORT:-5432}" \
+    --port "$${DB_PORT:-5432}" \
     --region "$REGION" \
     --username "$DB_USER")
   
