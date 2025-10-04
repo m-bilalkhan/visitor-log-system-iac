@@ -4,40 +4,48 @@ set -e
 REGION="${region}"
 ENV_PATH="/${project_name}/${env}"
 
+ENV_FILE="/home/ec2-user/app/.env"
+
+# -------------------------------------
+# 1. Fetch parameters from SSM
+# -------------------------------------
 PARAMS=$(aws ssm get-parameters-by-path \
   --path "$ENV_PATH" \
   --with-decryption \
-  --region $REGION \
+  --region "$REGION" \
   --query "Parameters[*].{Name:Name,Value:Value}" \
   --output text)
 
-ENV_FILE="/home/ec2-user/app/.env"
+# Clear any existing file
+> "$ENV_FILE"
 
+# Write all SSM params to .env
 echo "$PARAMS" | while read Name Value; do
   Key=$(basename "$Name")
-  echo "$${Key^^}=$Value" >> $ENV_FILE
+  echo "${Key^^}=$Value" >> "$ENV_FILE"
 done
 
-# 2. Fetch rotating DB password from Secrets Manager
-SECRET_NAME="${project_name}-${env}-db-master-password"
+# -------------------------------------
+# 2. Generate RDS IAM Auth Token
+# -------------------------------------
+DB_HOST=$(grep '^DB_HOST=' "$ENV_FILE" | cut -d'=' -f2)
+DB_PORT=$(grep '^DB_PORT=' "$ENV_FILE" | cut -d'=' -f2)
+DB_USER=$(grep '^DB_USER=' "$ENV_FILE" | cut -d'=' -f2)
 
-SECRET_VALUE=$(aws secretsmanager get-secret-value \
-  --secret-id "$SECRET_NAME" \
-  --region "$REGION" \
-  --query SecretString \
-  --output text 2>/dev/null)
-
-# Validate fetch
-if [ -z "$SECRET_VALUE" ] || [ "$SECRET_VALUE" == "null" ]; then
-  echo "❌ Failed to retrieve secret: $SECRET_NAME" >&2
-  exit 1
-fi
-
-# Parse JSON or plain string
-if command -v jq >/dev/null && echo "$SECRET_VALUE" | jq . >/dev/null 2>&1; then
-  PASSWORD=$(echo "$SECRET_VALUE" | jq -r .password)
+if [ -n "$DB_HOST" ] && [ -n "$DB_USER" ]; then
+  echo "Generating RDS IAM auth token..."
+  DB_PASSWORD=$(aws rds generate-db-auth-token \
+    --hostname "$DB_HOST" \
+    --port "${DB_PORT:-5432}" \
+    --region "$REGION" \
+    --username "$DB_USER")
+  
+  echo "DB_PASSWORD=$DB_PASSWORD" >> "$ENV_FILE"
 else
-  PASSWORD="$SECRET_VALUE"
+  echo "Skipping RDS token — missing DB_HOST or DB_USER"
 fi
 
-chown ec2-user:ec2-user $ENV_FILE
+# -------------------------------------
+# 3. Set ownership
+# -------------------------------------
+chown ec2-user:ec2-user "$ENV_FILE"
