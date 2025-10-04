@@ -1,3 +1,8 @@
+#----------------------
+# Data Source AWS Caller Identity
+#----------------------
+data "aws_caller_identity" "current" {}
+
 # ----------------------
 # IAM Role for EC2
 # ----------------------
