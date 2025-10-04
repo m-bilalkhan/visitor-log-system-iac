@@ -67,7 +67,9 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
         Effect   = "Allow"
         Action = [
           "rds-db:connect",
-          "rds:DescribeDBInstances"
+          "rds:DescribeDBInstances",
+          "rds:GenerateDBAuthToken"
+
         ]
         Resource = "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${var.db_instance_resource_id}/db_user"
       },
