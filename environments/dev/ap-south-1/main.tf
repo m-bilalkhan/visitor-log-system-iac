@@ -87,6 +87,9 @@ module "database" {
   master_user_password_rotate_immediately           = false
   master_user_password_rotation_schedule_expression = "rate(15 days)"
 
+  # Enable IAM auth
+  iam_database_authentication_enabled = true
+
   multi_az            = false
   publicly_accessible = false
 
@@ -134,6 +137,17 @@ resource "aws_ssm_parameter" "db_port" {
 }
 
 # ----------------------
+# IAM Role Module 
+# ----------------------
+module "iam_role" {
+  source                 = "../../../modules/iam-role"
+  env                    = var.env
+  project_name           = var.project_name
+  region                 = var.region
+  db_instance_resource_id = module.database.db_instance_resource_id
+}
+
+# ----------------------
 # Auto Scaling Module
 # ----------------------
 module "auto_scaling" {
@@ -146,6 +160,7 @@ module "auto_scaling" {
   instance_type     =  var.instance_type
   security_group_id = module.security_groups.aws_web_sg_id
   target_group_arns = module.load_balancer.target_group_arns
+  iam_instance_profile_name = module.iam_role.name
 }
 
 # ----------------------

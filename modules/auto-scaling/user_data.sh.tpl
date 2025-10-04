@@ -21,19 +21,23 @@ done
 # 2. Fetch rotating DB password from Secrets Manager
 SECRET_NAME="${project_name}-${env}-db-master-password"
 
-DB_PASSWORD=$(aws secretsmanager get-secret-value \
+SECRET_VALUE=$(aws secretsmanager get-secret-value \
   --secret-id "$SECRET_NAME" \
-  --region $REGION \
-  --query 'SecretString' \
-  --output text)
+  --region "$REGION" \
+  --query SecretString \
+  --output text 2>/dev/null)
 
-# If password is JSON (depends on RDS), parse it
-if echo "$DB_PASSWORD" | jq . >/dev/null 2>&1; then
-  PASSWORD=$(echo "$DB_PASSWORD" | jq -r .password)
-  echo "DB_PASSWORD=$PASSWORD" >> $ENV_FILE
+# Validate fetch
+if [ -z "$SECRET_VALUE" ] || [ "$SECRET_VALUE" == "null" ]; then
+  echo "❌ Failed to retrieve secret: $SECRET_NAME" >&2
+  exit 1
+fi
+
+# Parse JSON or plain string
+if command -v jq >/dev/null && echo "$SECRET_VALUE" | jq . >/dev/null 2>&1; then
+  PASSWORD=$(echo "$SECRET_VALUE" | jq -r .password)
 else
-  # plain text secret
-  echo "DB_PASSWORD=$DB_PASSWORD" >> $ENV_FILE
+  PASSWORD="$SECRET_VALUE"
 fi
 
 chown ec2-user:ec2-user $ENV_FILE
