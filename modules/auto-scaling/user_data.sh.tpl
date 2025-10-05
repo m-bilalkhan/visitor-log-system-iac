@@ -16,8 +16,6 @@ PARAMS=$(aws ssm get-parameters-by-path \
   --query "Parameters[*].{Name:Name,Value:Value}" \
   --output text)
 
-# Clear any existing file
-> "$ENV_FILE"
 
 # Write all SSM params to .env
 echo "$PARAMS" | while read Name Value; do
