@@ -41,7 +41,7 @@ jobs:
         id: resolve-ami
         run: |
           if [ "${{ github.event_name }}" = "repository_dispatch" ]; then
-            echo "ami_id=${{ github.event.client_payload.ami_id }}" >> $GITHUB_OUTPUT
+            echo "ami_id=${{ github.event.client_payload.ami }}" >> $GITHUB_OUTPUT
           else
             AMI_ID=$(aws ec2 describe-images \
               --owners self \
