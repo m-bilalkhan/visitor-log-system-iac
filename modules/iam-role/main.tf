@@ -36,15 +36,22 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
-      # ECR ReadOnly
+      # ECR Auth
       {
         Effect   = "Allow"
         Action = [
           "ecr:GetAuthorizationToken",
+          "ecr:DescribeRepositories"
+        ]
+        Resource = "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*"
+      },
+      # ECR ReadOnly
+      {
+        Effect   = "Allow"
+        Action = [
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:GetRepositoryPolicy",
-          "ecr:DescribeRepositories",
           "ecr:ListImages",
           "ecr:DescribeImages",
           "ecr:BatchGetImage",
