@@ -7,7 +7,7 @@ data "aws_caller_identity" "current" {}
 # IAM Role for EC2
 # ----------------------
 resource "aws_iam_role" "ec2_user" {
-  name = "${var.project_name}-${var.env}-EC2-User"
+  name = "${var.project_name}-${var.env}-ec2-user"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -22,7 +22,7 @@ resource "aws_iam_role" "ec2_user" {
   })
 
   tags = {
-    Name = "${var.project_name}-${var.env}-EC2-User"
+    Name = "${var.project_name}-${var.env}-ec2-user"
     Env  = var.env
   }
 }
@@ -31,7 +31,7 @@ resource "aws_iam_role" "ec2_user" {
 # Custom IAM Policy for EC2
 # ----------------------
 resource "aws_iam_policy" "custom_ec2_readonly" {
-  name        = "${var.project_name}-${var.env}-EC2-ReadOnly"
+  name        = "${var.project_name}-${var.env}-ec2-readonly"
   # description = "Custom policy with ECR ReadOnly + SSM read-only + SecretsManager read-only"
   policy = jsonencode({
     Version = "2012-10-17"
@@ -78,9 +78,17 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
 }
 
 # ----------------------
+# Attach Custom IAM Policy to Role
+# ----------------------
+resource "aws_iam_role_policy_attachment" "attach_custom_ec2_readonly" {
+  role       = aws_iam_role.ec2_user.name
+  policy_arn = aws_iam_policy.custom_ec2_readonly.arn
+}
+
+# ----------------------
 # Create Instance Profile
 # ----------------------
 resource "aws_iam_instance_profile" "this" {
-  name = "${var.project_name}-${var.env}-EC2-Instance-Profile"
+  name = "${var.project_name}-${var.env}-ec2-instance-profile"
   role = aws_iam_role.ec2_user.name
 }
