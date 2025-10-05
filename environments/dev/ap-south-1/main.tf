@@ -54,13 +54,6 @@ module "load_balancer" {
   region            = var.region
 }
 
-#----------------------
-# KMS Key for RDS
-#----------------------
-data "aws_kms_alias" "this" {
-  name = "alias/aws/rds"
-}
-
 # ----------------------
 # Database Module
 # ----------------------
@@ -103,8 +96,6 @@ module "database" {
 
   deletion_protection = false
   skip_final_snapshot = true
-
-  kms_key_id = data.aws_kms_alias.this.arn
 
   tags = {
     Name = "${var.project_name}-${var.env}-DB"
