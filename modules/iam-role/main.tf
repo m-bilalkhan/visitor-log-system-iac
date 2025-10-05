@@ -41,9 +41,10 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
         Effect   = "Allow"
         Action = [
           "ecr:GetAuthorizationToken",
-          "ecr:DescribeRepositories"
+          "ecr:DescribeRepositories",
+          "ecr:DescribeRegistry"
         ]
-        Resource = "arn:aws:ecr:${var.region}:${data.aws_caller_identity.current.account_id}:repository/*"
+        Resource = "*"
       },
       # ECR ReadOnly
       {
