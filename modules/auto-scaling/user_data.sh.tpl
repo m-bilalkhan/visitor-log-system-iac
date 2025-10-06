@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-REGION="$${region}"
-ENV_PATH="/$${project_name}/$${env}"
+REGION="${region}"
+ENV_PATH="/${project_name}/${env}"
 
 ENV_FILE="/home/ec2-user/app/.env"
 
