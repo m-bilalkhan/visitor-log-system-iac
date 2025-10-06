@@ -71,7 +71,7 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
           "ssm:GetParameters",
           "ssm:GetParametersByPath"
         ]
-        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/${var.env}/*"
+        Resource = "arn:aws:ssm:${var.region}:${data.aws_caller_identity.current.account_id}:parameter/${var.project_name}/*"
       },
       # RDS ReadOnly
       {
