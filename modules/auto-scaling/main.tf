@@ -20,14 +20,6 @@ resource "aws_launch_template" "launch_template" {
 
   vpc_security_group_ids = [ var.security_group_id ]
 
-  user_data = base64encode(
-    templatefile("${path.module}/user_data.sh.tpl", {
-      region       = var.region
-      project_name = var.project_name
-      env          = var.env
-    })
-  )
-
   instance_initiated_shutdown_behavior = "terminate"
 
   instance_type = var.instance_type
