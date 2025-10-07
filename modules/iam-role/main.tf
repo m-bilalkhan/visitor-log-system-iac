@@ -82,7 +82,7 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
           "rds:GenerateDBAuthToken"
 
         ]
-        Resource = "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${var.db_instance_resource_id}/db_user"
+        Resource = "arn:aws:rds:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${var.db_instance_resource_id}/${var.db_user}"
       },
     ]
   })
