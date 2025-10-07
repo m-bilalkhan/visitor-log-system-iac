@@ -136,7 +136,7 @@ module "iam_role" {
   project_name           = var.project_name
   region                 = var.region
   db_instance_resource_id = module.database.db_instance_resource_id
-  db_user = module.database.username
+  db_user = "root"
 }
 
 # ----------------------
