@@ -110,7 +110,7 @@ data "archive_file" "lambda_zip" {
 }
 
 resource "aws_lambda_layer_version" "psycopg2" {
-  filename            = "psycopg2-layer.zip"
+  filename            = "${path.module}/psycopg2-layer.zip"
   layer_name          = "psycopg2-layer"
   compatible_runtimes = ["python3.12"]
   description         = "psycopg2-binary compiled for Amazon Linux 2 (Python 3.12)"
