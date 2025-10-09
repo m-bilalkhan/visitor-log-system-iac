@@ -4,10 +4,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.12.0"
     }
-    postgresql = {
-      source = "cyrilgdn/postgresql"
-      version = "~>1.26.0"
-    }
   }
 }
 
@@ -62,49 +58,14 @@ module "load_balancer" {
 # Database Module
 # ----------------------
 module "database" {
-  source  = "terraform-aws-modules/rds/aws"
-  version = "~> 6.12.0"
-
-  identifier = "${lower(var.project_name)}-${var.env}-db"
-
-  engine               = "postgres"
-  engine_version       = "15"
-  family               = "postgres15"
-  major_engine_version = "15"
-  instance_class       = "db.t3.micro"
-
-  allocated_storage     = 20
-  max_allocated_storage = 35
-
-  db_name  = format("%s_db", replace(var.project_name, "-", ""))
-  username = "root"
-  port     = "5432"
-
-  manage_master_user_password_rotation              = true
-  master_user_password_rotate_immediately           = false
-  master_user_password_rotation_schedule_expression = "rate(15 days)"
-
-  # Enable IAM auth
-  iam_database_authentication_enabled = true
-
-  multi_az            = false
-  publicly_accessible = true
-
+  source  = "../../../modules/rds"
+  project_name = var.project_name
+  env = var.env
   vpc_security_group_ids = [module.security_groups.aws_db_sg_id]
-  create_db_subnet_group = true
-  subnet_ids             = module.networking.private_subnets
-
-  backup_retention_period = 7
-  backup_window           = "03:00-04:00"
-  maintenance_window      = "sun:04:00-sun:05:00"
-
-  deletion_protection = false
-  skip_final_snapshot = true
-
-  tags = {
-    Name = "${var.project_name}-${var.env}-DB"
-    Env  = var.env
-  }
+  subnet_ids = module.networking.private_subnets
+  iam_role_name = var.iam_role_name
+  lambda_sg = module.security_groups.aws_lambda_sg_id
+  db_sg = module.security_groups.aws_db_sg_id
 }
 
 resource "aws_ssm_parameter" "db_host" {
@@ -130,46 +91,11 @@ resource "aws_ssm_parameter" "db_port" {
 # ----------------------
 module "iam_role" {
   source                 = "../../../modules/iam-role"
+  iam_role_name          = var.iam_role_name
   env                    = var.env
   project_name           = var.project_name
   region                 = var.region
   db_instance_resource_id = module.database.db_instance_resource_id
-}
-
-# PostgreSQL Provider Configuration
-#----------------------
-# Secret manager to fetch the password
-#----------------------
-data "aws_secretsmanager_secret_version" "postgres_password" {
-  secret_id = module.database.db_instance_master_user_secret_arn
-}
-
-provider "postgresql" {
-  host            = module.database.db_instance_address
-  port            = aws_ssm_parameter.db_port.value
-  database        = aws_ssm_parameter.db_name.value
-  username        = "root"
-  password        = jsondecode(data.aws_secretsmanager_secret_version.postgres_password.secret_string)["password"]
-  sslmode         = "require"
-  connect_timeout = 15
-}
-
-#----------------------
-# PostgreSQL Role and Grants
-#----------------------
-resource "postgresql_role" "this" {
-  name     = module.iam_role.iam_role_name
-  login    = true
-  roles = ["rds_iam"]
-  password = null
-}
-
-resource postgresql_grant "this" {                                                                                                                                                
-  database    = aws_ssm_parameter.db_name.value                                                                                                                                                                   
-  role        = postgresql_role.this.name                                                                                                                                                
-  schema      = "public"                                                                                                                                                                     
-  object_type = "database"                                                                                                                                                                      
-  privileges  = ["Create", "Connect", "SELECT", "UPDATE", "INSERT"]                                                                                                                                                              
 }
 
 # ----------------------

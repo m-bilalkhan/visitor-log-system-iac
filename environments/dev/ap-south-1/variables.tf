@@ -41,3 +41,7 @@ variable "ami_id" {
   description = "AMI ID for the EC2 instances"
   type        = string
 }
+variable "iam_role_name" { 
+  type = string
+  default = "visitor-log-system-dev-ec2-user" 
+}

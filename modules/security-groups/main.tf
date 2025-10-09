@@ -97,3 +97,26 @@ resource "aws_vpc_security_group_ingress_rule" "allow_postgres_from_web" {
     Env = var.env
   } 
 }
+
+#----------------------
+# Lambda Security Group
+#----------------------
+resource "aws_security_group" "lambda_sg" {
+  name   = "${var.project_name}-${var.env}-lambda-sg"
+  vpc_id = var.vpc_id
+  tags = {
+    Name = "${var.project_name}-${var.env}-lambda-sg"
+    Env  = var.env
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_lambda_all_outbound_egress" {
+  security_group_id = aws_security_group.lambda_sg.id
+  description = "Allow all outbound traffic"
+  ip_protocol       = "-1"        # All protocols
+  cidr_ipv4         = "0.0.0.0/0" # Allow all outbound traffic
+  tags = {
+    Name        = "${var.project_name}-${var.env}-lambda-sg-egress"
+    Env = var.env
+  }
+}
