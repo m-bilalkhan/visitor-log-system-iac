@@ -87,7 +87,7 @@ resource "aws_iam_policy" "custom_ec2_readonly" {
         Action = [
           "rds-db:connect"
         ]
-        Resource = "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${var.db_instance_resource_id}/${var.db_user}"
+        Resource = "arn:aws:rds-db:${var.region}:${data.aws_caller_identity.current.account_id}:dbuser:${var.db_instance_resource_id}/${aws_iam_role.ec2_user.name}"
       },
     ]
   })

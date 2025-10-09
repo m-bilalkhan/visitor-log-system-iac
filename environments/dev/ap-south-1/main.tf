@@ -4,6 +4,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.12.0"
     }
+    postgresql = {
+      source = "cyrilgdn/postgresql"
+      version = "~>1.26.0"
+    }
   }
 }
 
@@ -115,12 +119,6 @@ resource "aws_ssm_parameter" "db_name" {
   value = format("%s_db", replace(var.project_name, "-", ""))
 }
 
-resource "aws_ssm_parameter" "db_user" {
-  name  = "/${var.project_name}/${var.env}/db_user"
-  type  = "String"
-  value = "root"
-}
-
 resource "aws_ssm_parameter" "db_port" {
   name  = "/${var.project_name}/${var.env}/db_port"
   type  = "String"
@@ -136,7 +134,42 @@ module "iam_role" {
   project_name           = var.project_name
   region                 = var.region
   db_instance_resource_id = module.database.db_instance_resource_id
-  db_user = "root"
+}
+
+# PostgreSQL Provider Configuration
+#----------------------
+# Secret manager to fetch the password
+#----------------------
+data "aws_secretsmanager_secret_version" "postgres_password" {
+  secret_id = module.database.db_instance_master_user_secret_arn
+}
+
+provider "postgresql" {
+  host            = module.database.db_instance_address
+  port            = aws_ssm_parameter.db_port.value
+  database        = aws_ssm_parameter.db_name.value
+  username        = "root"
+  password        = jsondecode(data.aws_secretsmanager_secret_version.postgres_password.secret_string)["password"]
+  sslmode         = "require"
+  connect_timeout = 15
+}
+
+#----------------------
+# PostgreSQL Role and Grants
+#----------------------
+resource "postgresql_role" "this" {
+  name     = module.iam_role.iam_role_name
+  login    = true
+  roles = ["rds_iam"]
+  password = null
+}
+
+resource postgresql_grant "this" {                                                                                                                                                
+  database    = aws_ssm_parameter.db_name.value                                                                                                                                                                   
+  role        = postgresql_role.this.name                                                                                                                                                
+  schema      = "public"                                                                                                                                                                     
+  object_type = "database"                                                                                                                                                                      
+  privileges  = ["Create", "Connect", "SELECT", "UPDATE", "INSERT"]                                                                                                                                                              
 }
 
 # ----------------------
@@ -152,7 +185,7 @@ module "auto_scaling" {
   instance_type     =  var.instance_type
   security_group_id = module.security_groups.aws_web_sg_id
   target_group_arns = module.load_balancer.target_group_arns
-  iam_instance_profile_name = module.iam_role.name
+  iam_instance_profile_name = module.iam_role.instance_profile_name
 }
 
 # ----------------------
