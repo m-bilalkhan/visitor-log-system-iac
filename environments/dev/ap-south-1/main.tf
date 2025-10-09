@@ -88,7 +88,7 @@ module "database" {
   iam_database_authentication_enabled = true
 
   multi_az            = false
-  publicly_accessible = false
+  publicly_accessible = true
 
   vpc_security_group_ids = [module.security_groups.aws_db_sg_id]
   create_db_subnet_group = true
