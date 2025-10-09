@@ -56,11 +56,11 @@ module "database" {
   iam_database_authentication_enabled = true
 
   multi_az            = false
-  publicly_accessible = true
+  publicly_accessible = false
 
   vpc_security_group_ids = [var.db_sg]
   create_db_subnet_group = true
-  subnet_ids             = var.subnet_ids
+  subnet_ids             = var.private_subnet_ids
 
   backup_retention_period = 7
   backup_window           = "03:00-04:00"
@@ -128,7 +128,7 @@ resource "aws_lambda_function" "bootstrap" {
   }
 
   vpc_config {
-    subnet_ids         = var.subnet_ids
+    subnet_ids         = var.private_subnet_ids
     security_group_ids = [ var.lambda_sg ]
   }
 }

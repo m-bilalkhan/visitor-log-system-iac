@@ -61,8 +61,8 @@ module "database" {
   source  = "../../../modules/rds"
   project_name = var.project_name
   env = var.env
-  vpc_security_group_ids = [module.security_groups.aws_db_sg_id]
-  subnet_ids = module.networking.private_subnets
+  private_subnet_ids = module.networking.private_subnets
+  public_subnet_ids = module.networking.public_subnets
   iam_role_name = var.iam_role_name
   lambda_sg = module.security_groups.aws_lambda_sg_id
   db_sg = module.security_groups.aws_db_sg_id
