@@ -104,7 +104,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_postgres_from_lambda" {
   from_port   = 5432
   ip_protocol = "tcp"
   to_port     = 5432
-  referenced_security_group_id = aws_security_group.web_sg.id
+  referenced_security_group_id = aws_security_group.db_sg.id
   tags = {
     Name        = "${var.project_name}-${var.env}-db-sg-ingress"
     Env = var.env

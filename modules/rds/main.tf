@@ -105,8 +105,17 @@ resource "aws_iam_role_policy_attachment" "lambda_secret_attach" {
 # ----------------------------
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_dir  = "${path.module}/"
+  source_dir  = "${path.module}/src"
   output_path = "${path.module}/lambda.zip"
+}
+
+resource "aws_lambda_layer_version" "psycopg2" {
+  filename            = "psycopg2-layer.zip"
+  layer_name          = "psycopg2-layer"
+  compatible_runtimes = ["python3.12"]
+  description         = "psycopg2-binary compiled for Amazon Linux 2 (Python 3.12)"
+
+  source_code_hash = filebase64sha256("${path.module}/psycopg2-layer.zip")
 }
 
 resource "aws_lambda_function" "bootstrap" {
@@ -116,6 +125,10 @@ resource "aws_lambda_function" "bootstrap" {
   handler          = "lambda_function.handler"
   runtime          = "python3.12"
   timeout          = 30
+
+  layers = [
+    aws_lambda_layer_version.psycopg2.arn
+  ]
 
   environment {
     variables = {
