@@ -125,7 +125,7 @@ resource "aws_lambda_function" "bootstrap" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.handler"
   runtime          = "python3.12"
-  timeout          = 300
+  timeout          = 900
   publish          = true
 
   layers = [
