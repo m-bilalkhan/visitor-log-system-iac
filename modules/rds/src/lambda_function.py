@@ -28,7 +28,7 @@ def handler(event, context):
             password=secret["password"],
             dbname=dbname,
             port=port,
-            connect_timeout=10
+            connect_timeout=60
         )
         print("Database connection established")
 
