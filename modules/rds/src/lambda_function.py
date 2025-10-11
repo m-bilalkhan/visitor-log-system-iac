@@ -6,7 +6,6 @@ import traceback
 
 def handler(event, context):
     print("=== Lambda Execution Started ===")
-    print(f"Event received: {json.dumps(event)}")
 
     try:
         # Environment variables
@@ -35,7 +34,7 @@ def handler(event, context):
         # Create cursor
         cur = conn.cursor()
 
-        iam_role_name = event.get("iam_role_name")
+        iam_role_name = os.environ["DB_ROLE_NAME"]
         if not iam_role_name:
             raise ValueError("Missing 'iam_role_name' in event")
 
