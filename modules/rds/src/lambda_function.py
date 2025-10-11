@@ -41,8 +41,8 @@ def handler(event, context):
         print(f"Creating PostgreSQL role: {iam_role_name}")
 
         # Execute SQL commands
-        cur.execute(f"CREATE ROLE {iam_role_name} LOGIN;")
-        cur.execute(f"GRANT rds_iam TO {iam_role_name};")
+        cur.execute(f'CREATE ROLE "{iam_role_name} LOGIN;')
+        cur.execute(f'GRANT rds_iam TO "{iam_role_name};')
 
         conn.commit()
         print(f"Successfully created role and granted rds_iam to {iam_role_name}")
