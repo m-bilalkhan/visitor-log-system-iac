@@ -119,7 +119,7 @@ resource "aws_lambda_layer_version" "psycopg2" {
 }
 
 resource "aws_lambda_function" "bootstrap" {
-  filename         = data.archive_file.lambda_zip.output_path
+  filename         = data.archive_file.lambda_zip.output_base64sha256
   function_name    = "${var.project_name}-${var.env}-rds-configurer"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.handler"
