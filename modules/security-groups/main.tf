@@ -162,7 +162,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_vpcep_inbound_lambda" {
 }
 
 resource "aws_vpc_security_group_egress_rule" "allow_vpcep_outbound_egress" {
-  security_group_id = aws_security_group.lambda_sg.id
+  security_group_id = aws_security_group.vpcep_sg.id
   description = "Allow outbound traffic"
   from_port   = 443
   to_port     = 443

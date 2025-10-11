@@ -27,10 +27,10 @@ def handler(event, context):
 
         # Connect to PostgreSQL
         conn = psycopg2.connect(
-            host=secret["host"],
-            user=secret["username"],
+            host=host,
+            user=username,
             password=secret["password"],
-            dbname=secret["dbname"],
+            dbname=dbname,
             port=port,
             connect_timeout=10
         )
