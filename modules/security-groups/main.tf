@@ -136,6 +136,18 @@ resource "aws_vpc_security_group_egress_rule" "allow_lambda_outbound_egress" {
   }
 }
 
+resource "aws_vpc_security_group_egress_rule" "allow_lambda_db_outbound_egress" {
+  security_group_id = aws_security_group.lambda_sg.id
+  description = "Allow outbound traffic to db"
+  from_port   = 5432
+  to_port     = 5432
+  ip_protocol = "tcp"
+  referenced_security_group_id = aws_security_group.db_sg.id
+  tags = {
+    Name        = "${var.project_name}-${var.env}-lambda-sg-egress"
+    Env = var.env
+  }
+}
 #----------------------
 # Vpc Endpoint Security Group
 #----------------------
