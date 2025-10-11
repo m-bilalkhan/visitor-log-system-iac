@@ -106,7 +106,7 @@ resource "aws_iam_role_policy_attachment" "lambda_secret_attach" {
 data "archive_file" "lambda_zip" {
   type        = "zip"
   source_dir  = "${path.module}/src"
-  output_path = "${path.module}/lambda.zip"
+  output_path = "${path.module}/lambda-${filesha256("${path.module}/src")}.zip"
 }
 
 resource "aws_lambda_layer_version" "psycopg2" {
