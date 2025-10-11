@@ -33,6 +33,24 @@ module "security_groups" {
 }
 
 # ----------------------
+# Secret Manager Vpc endpoint
+# ----------------------
+resource "aws_vpc_endpoint" "secretsmanager" {
+  vpc_id            = module.networking.vpc_id
+  service_name      = "com.amazonaws.ap-south-1.secretsmanager"
+  vpc_endpoint_type = "Interface"
+
+  subnet_ids = module.networking.private_subnets
+
+  security_group_ids  = [module.security_groups.aws_lambda_sg_id]
+  private_dns_enabled = true
+
+  tags = {
+    Name = "${var.project_name}-${var.env}-secretsmanager-endpoint"
+  }
+}
+
+# ----------------------
 # S3 Module
 # ----------------------
 module "s3" {
