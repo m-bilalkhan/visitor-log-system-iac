@@ -135,3 +135,41 @@ resource "aws_vpc_security_group_egress_rule" "allow_lambda_outbound_egress" {
     Env = var.env
   }
 }
+
+#----------------------
+# Vpc Endpoint Security Group
+#----------------------
+resource "aws_security_group" "vpcep_sg" {
+  name   = "${var.project_name}-${var.env}-vpcep-sg"
+  vpc_id = var.vpc_id
+  tags = {
+    Name = "${var.project_name}-${var.env}-vpcep-sg"
+    Env  = var.env
+  }
+}
+
+resource "aws_vpc_security_group_ingress_rule" "allow_vpcep_inbound_lambda" {
+  security_group_id = aws_security_group.vpcep_sg.id
+  description = "Allow inbound traffic from lambda"
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
+  cidr_ipv4   = aws_security_group.lambda_sg.id
+  tags = {
+    Name        = "${var.project_name}-${var.env}-vpcep-sg-ingress"
+    Env = var.env
+  }
+}
+
+resource "aws_vpc_security_group_egress_rule" "allow_vpcep_outbound_egress" {
+  security_group_id = aws_security_group.lambda_sg.id
+  description = "Allow outbound traffic"
+  from_port   = 443
+  to_port     = 443
+  ip_protocol = "tcp"
+  cidr_ipv4   = "0.0.0.0/0" # Allow all outbound traffic
+  tags = {
+    Name        = "${var.project_name}-${var.env}-vpcep-sg-egress"
+    Env = var.env
+  }
+}

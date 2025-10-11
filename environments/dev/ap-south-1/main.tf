@@ -42,7 +42,7 @@ resource "aws_vpc_endpoint" "secretsmanager" {
 
   subnet_ids = module.networking.private_subnets
 
-  security_group_ids  = [module.security_groups.aws_lambda_sg_id]
+  security_group_ids  = [module.security_groups.aws_vpcep_sg_id]
   private_dns_enabled = true
 
   tags = {
