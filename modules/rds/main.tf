@@ -124,7 +124,7 @@ resource "aws_lambda_function" "bootstrap" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.handler"
   runtime          = "python3.12"
-  timeout          = 120
+  timeout          = 300
 
   layers = [
     aws_lambda_layer_version.psycopg2.arn
