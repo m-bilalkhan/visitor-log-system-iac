@@ -154,7 +154,7 @@ resource "aws_vpc_security_group_ingress_rule" "allow_vpcep_inbound_lambda" {
   from_port   = 443
   to_port     = 443
   ip_protocol = "tcp"
-  cidr_ipv4   = aws_security_group.lambda_sg.id
+  referenced_security_group_id   = aws_security_group.lambda_sg.id
   tags = {
     Name        = "${var.project_name}-${var.env}-vpcep-sg-ingress"
     Env = var.env
