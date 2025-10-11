@@ -125,6 +125,7 @@ resource "aws_lambda_function" "bootstrap" {
   handler          = "lambda_function.handler"
   runtime          = "python3.12"
   timeout          = 300
+  publish          = true
 
   layers = [
     aws_lambda_layer_version.psycopg2.arn
