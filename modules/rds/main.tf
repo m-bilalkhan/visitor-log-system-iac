@@ -103,6 +103,12 @@ resource "aws_iam_role_policy_attachment" "lambda_secret_attach" {
 # ----------------------------
 # Lambda Function
 # ----------------------------
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_file = "${path.module}/src/lambda_function.py"
+  output_path = "${path.module}/lambda.zip"
+}
+
 resource "aws_lambda_layer_version" "psycopg2" {
   filename            = "${path.module}/psycopg2-layer.zip"
   layer_name          = "psycopg2-layer"
@@ -114,6 +120,7 @@ resource "aws_lambda_layer_version" "psycopg2" {
 
 resource "aws_lambda_function" "bootstrap" {
   filename         = "${path.module}/src/lambda_function.py"
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
   function_name    = "${var.project_name}-${var.env}-rds-configurer"
   role             = aws_iam_role.lambda_role.arn
   handler          = "lambda_function.handler"
