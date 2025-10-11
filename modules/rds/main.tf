@@ -139,6 +139,7 @@ resource "aws_lambda_function" "bootstrap" {
       DB_PORT       = "5432"
       DB_HOST       = module.database.db_instance_address
       DB_ROLE_NAME  = var.iam_role_name
+      DB_USERNAME   = "root"
     }
   }
 

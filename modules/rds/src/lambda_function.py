@@ -14,16 +14,12 @@ def handler(event, context):
         host = os.environ["DB_HOST"]
         port = os.environ["DB_PORT"]
         dbname = os.environ["DB_NAME"]
-
-        print(f"Using Secret ARN: {secret_name}")
-        print(f"Database connection target: host={host}, port={port}, dbname={dbname}")
+        username = os.environ["DB_USERNAME"]
 
         # Fetch DB credentials from Secrets Manager
         sm = boto3.client("secretsmanager")
         secret_value = sm.get_secret_value(SecretId=secret_name)
         secret = json.loads(secret_value["SecretString"])
-
-        print("Successfully fetched database credentials from Secrets Manager")
 
         # Connect to PostgreSQL
         conn = psycopg2.connect(
