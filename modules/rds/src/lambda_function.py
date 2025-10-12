@@ -51,7 +51,7 @@ def handler(event, context):
                 END IF;
             END
             $$;
-        """, (iam_role_name, iam_role_name, iam_role_name, iam_role_name))
+        """, (iam_role_name, iam_role_name, iam_role_name, iam_role_name, iam_role_name))
         print(f"✅ Role ensured: {iam_role_name}")
 
         # --- Step 2: Create visitors table if not exists ---
