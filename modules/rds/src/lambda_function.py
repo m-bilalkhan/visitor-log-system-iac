@@ -43,6 +43,18 @@ def handler(event, context):
         # Execute SQL commands
         cur.execute(f'CREATE ROLE "{iam_role_name} LOGIN;')
         cur.execute(f'GRANT rds_iam TO "{iam_role_name};')
+        cur.execute("""
+            CREATE TABLE IF NOT EXISTS visitors (
+                id SERIAL PRIMARY KEY,
+                name VARCHAR(100) NOT NULL,
+                email VARCHAR(150) NOT NULL,
+                location VARCHAR(255),
+                message TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            );
+        """)
+        print("✅ Visitors table ensured")
+
 
         conn.commit()
         print(f"Successfully created role and granted rds_iam to {iam_role_name}")
