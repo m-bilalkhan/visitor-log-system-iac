@@ -38,11 +38,24 @@ def handler(event, context):
         if not iam_role_name:
             raise ValueError("Missing 'iam_role_name' in event")
 
-        print(f"Creating PostgreSQL role: {iam_role_name}")
+        # --- Step 1: Create role if not exists ---
+        print(f"🔍 Checking or creating PostgreSQL role: {iam_role_name}")
+        cur.execute("""
+            DO $$
+            BEGIN
+                IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = %s) THEN
+                    EXECUTE format('CREATE ROLE %I LOGIN;', %s);
+                    EXECUTE format('GRANT rds_iam TO %I;', %s);
+                ELSE
+                    RAISE NOTICE 'Role % already exists, skipping creation.', %s;
+                END IF;
+            END
+            $$;
+        """, (iam_role_name, iam_role_name, iam_role_name, iam_role_name))
+        print(f"✅ Role ensured: {iam_role_name}")
 
-        # Execute SQL commands
-        cur.execute(f'CREATE ROLE "{iam_role_name}" LOGIN;')
-        cur.execute(f'GRANT rds_iam TO "{iam_role_name}";')
+        # --- Step 2: Create visitors table if not exists ---
+        print("🔍 Ensuring visitors table exists...")
         cur.execute("""
             CREATE TABLE IF NOT EXISTS visitors (
                 id SERIAL PRIMARY KEY,
@@ -53,7 +66,7 @@ def handler(event, context):
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
         """)
-        print("✅ Visitors table ensured")
+        print("✅ visitors table ensured")
 
 
         conn.commit()
