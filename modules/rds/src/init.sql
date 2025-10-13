@@ -3,7 +3,9 @@ BEGIN
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = '{{ROLE_NAME}}') THEN
         EXECUTE format('CREATE ROLE %I LOGIN', '{{ROLE_NAME}}');
         EXECUTE format('GRANT rds_iam TO %I', '{{ROLE_NAME}}');
-        EXECUTE format('GRANT SELECT, INSERT ON ALL TABLES IN SCHEMA public TO %I', '{{ROLE_NAME}}');
+        EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO %I', '{{ROLE_NAME}}');
+        EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO %I', '{{ROLE_NAME}}');
+
     ELSE
         RAISE NOTICE 'Role {{ROLE_NAME}} already exists, skipping creation.';
     END IF;
