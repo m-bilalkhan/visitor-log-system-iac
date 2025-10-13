@@ -38,20 +38,24 @@ def handler(event, context):
         if not iam_role_name:
             raise ValueError("Missing 'iam_role_name' in event")
 
-        # --- Step 1: Create role if not exists ---
-        print(f"🔍 Checking or creating PostgreSQL role: {iam_role_name}")
-        cur.execute("""
+        # Build dynamic SQL safely using psycopg2.sql
+        create_role_block = sql.SQL("""
             DO $$
             BEGIN
-                IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = %s) THEN
-                    EXECUTE format('CREATE ROLE %I LOGIN;', %s);
-                    EXECUTE format('GRANT rds_iam TO %I;', %s);
+                IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = {role_literal}) THEN
+                    EXECUTE 'CREATE ROLE {role_ident} LOGIN';
+                    EXECUTE 'GRANT rds_iam TO {role_ident}';
                 ELSE
-                    RAISE NOTICE 'Role % already exists, skipping creation.', %s;
+                    RAISE NOTICE 'Role {role_literal} already exists, skipping creation.';
                 END IF;
             END
             $$;
-        """, (iam_role_name, iam_role_name, iam_role_name, iam_role_name))
+        """).format(
+            role_literal=sql.Literal(iam_role_name),
+            role_ident=sql.Identifier(iam_role_name)
+        )
+
+        cur.execute(create_role_block)
         print(f"✅ Role ensured: {iam_role_name}")
 
         # --- Step 2: Create visitors table if not exists ---
