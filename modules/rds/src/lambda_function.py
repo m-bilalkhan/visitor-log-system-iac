@@ -38,44 +38,13 @@ def handler(event, context):
         if not iam_role_name:
             raise ValueError("Missing 'iam_role_name' in event")
 
-        # Build dynamic SQL safely using psycopg2.sql
-        create_role_block = sql.SQL("""
-            DO $$
-            BEGIN
-                IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = {role_literal}) THEN
-                    EXECUTE 'CREATE ROLE {role_ident} LOGIN';
-                    EXECUTE 'GRANT rds_iam TO {role_ident}';
-                ELSE
-                    RAISE NOTICE 'Role {role_literal} already exists, skipping creation.';
-                END IF;
-            END
-            $$;
-        """).format(
-            role_literal=sql.Literal(iam_role_name),
-            role_ident=sql.Identifier(iam_role_name)
-        )
+        with open(os.path.join(os.path.dirname(__file__), "init.sql"), "r") as f:
+            sql_script = f.read().replace("{{ROLE_NAME}}", iam_role_name)
 
-        cur.execute(create_role_block)
-        print(f"✅ Role ensured: {iam_role_name}")
-
-        # --- Step 2: Create visitors table if not exists ---
-        print("🔍 Ensuring visitors table exists...")
-        cur.execute("""
-            CREATE TABLE IF NOT EXISTS visitors (
-                id SERIAL PRIMARY KEY,
-                name VARCHAR(100) NOT NULL,
-                email VARCHAR(150) NOT NULL,
-                location VARCHAR(255),
-                message TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );
-        """)
-        print("✅ visitors table ensured")
-
+        print("📜 Executing init.sql with dynamic role name...")
+        cur.execute(sql_script)
 
         conn.commit()
-        print(f"Successfully created role and granted rds_iam to {iam_role_name}")
-
         # Cleanup
         cur.close()
         conn.close()
