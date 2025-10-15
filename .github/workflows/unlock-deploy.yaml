@@ -1,0 +1,14 @@
+name: Unlock Deploys
+
+on:
+  workflow_dispatch:
+
+jobs:
+  unlock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Unlock Deployments
+        uses: deploy-lock/deploy-lock@v1
+        with:
+          mode: unlock
+          github_token: ${{ secrets.GITHUB_TOKEN }}

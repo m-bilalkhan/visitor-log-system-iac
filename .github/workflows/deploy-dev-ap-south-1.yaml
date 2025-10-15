@@ -9,6 +9,15 @@ on:
   workflow_dispatch:
 
 jobs:
+  check-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: check Deploy Lock
+        uses: deploy-lock/deploy-lock@v1
+        with:
+          mode: check
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
   call-deploy:
     uses: ./.github/workflows/terraform-deploy-dev.yaml
     permissions:

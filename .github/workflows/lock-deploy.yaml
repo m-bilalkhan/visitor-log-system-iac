@@ -1,0 +1,15 @@
+name: Lock Deploys
+
+on:
+  workflow_dispatch:
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lock Deployments
+        uses: deploy-lock/deploy-lock@v1
+        with:
+          mode: lock
+          lock_message: "Weekend lock — deploys paused"
+          github_token: ${{ secrets.GITHUB_TOKEN }}
