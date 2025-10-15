@@ -11,5 +11,5 @@ jobs:
         uses: github/lock@v3.0.0
         with:
           mode: lock
-          lock_message: "Weekend lock — deploys paused"
+          reason: "Deploy lock — deploys paused"
           github_token: ${{ secrets.GITHUB_TOKEN }}
