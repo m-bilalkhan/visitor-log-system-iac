@@ -3,6 +3,9 @@ name: Unlock Deploys
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   unlock:
     runs-on: ubuntu-latest

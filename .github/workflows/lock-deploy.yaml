@@ -3,6 +3,9 @@ name: Lock Deploys
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   lock:
     runs-on: ubuntu-latest
