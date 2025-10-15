@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Lock Deployments
-        uses: deploy-lock/deploy-lock@v1
+        uses: github/lock@v3.0.0
         with:
           mode: lock
           lock_message: "Weekend lock — deploys paused"
