@@ -20,7 +20,7 @@ jobs:
 
   call-deploy:
     needs: check-lock
-    if: needs.check-lock.result == 'success'
+    if: needs.check-lock.outputs.locked == 'false'
     uses: ./.github/workflows/terraform-deploy-dev.yaml
     permissions:
       id-token: write
