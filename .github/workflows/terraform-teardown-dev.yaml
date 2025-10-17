@@ -14,12 +14,34 @@ on:
         type: string
 
 jobs:
-  terraform:
+  VerifyPassword:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
+    outputs:
+      verified: ${{ steps.verify-password.outputs.verified }}
+    steps:
+      - name: "Verify Password (Hint: Madara Uciha)"
+        id: verify-password
+        run: |
+          echo "::add-mask::${{ inputs.password }}"
+          if [ "${{ inputs.password }}" = "${{ secrets.password }}" ]; then
+            echo "User Verified"
+            echo "verified=true" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Password require for Infra teardown."
+            echo "verified=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
 
+  Destroy-Infrastructure:
+    needs: VerifyPassword
+    if: needs.VerifyPassword.outputs.verified == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -38,25 +60,6 @@ jobs:
       - name: Terraform Init
         working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
         run: terraform init -input=false
-      
-      - name: "Verify Password (Hint: Madara Uciha)"
-        run: |
-          if [ "${{ inputs.password }}" = "${{ secrets.password }}" ]; then
-            echo "User Verified"
-          else
-            AMI_ID=$(aws ec2 describe-images \
-              --owners self \
-              --filters "Name=tag:Project,Values=visitor-log-system" \
-              --filters "Name=tag:Env,Values=dev" \
-              --query "Images | sort_by(@, &Tags[?Key=='BuildTime'].Value|[0])[-1].ImageId" \
-              --output text)
-
-            if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
-              echo "❌ No AMI found, failing pipeline."
-              exit 1
-            fi
-            echo "❌ Password require for Infra teardown.""
-          fi
       
       - name: Terraform Destroy
         if: github.ref == 'refs/heads/main'
