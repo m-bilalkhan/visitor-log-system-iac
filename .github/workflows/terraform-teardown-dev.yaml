@@ -77,7 +77,11 @@ jobs:
           fi
           echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
       
+      - name: Terraform Plan
+        working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
+        run: terraform plan -var "ami_id=${{ steps.resolve-ami.outputs.ami_id }}" -out=tfplan
+      
       - name: Terraform Destroy
         if: github.ref == 'refs/heads/main'
         working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
-        run: terraform apply -auto-approve -destroy
+        run: terraform apply -auto-approve tfplan -destroy
