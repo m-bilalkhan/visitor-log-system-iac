@@ -79,9 +79,9 @@ jobs:
       
       - name: Terraform Plan
         working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
-        run: terraform plan -var "ami_id=${{ steps.resolve-ami.outputs.ami_id }}" -out=tfplan
+        run: terraform plan -var "ami_id=${{ steps.resolve-ami.outputs.ami_id }}" -destroy -out=tfplan
       
       - name: Terraform Destroy
         if: github.ref == 'refs/heads/main'
         working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
-        run: terraform apply -auto-approve tfplan -destroy
+        run: terraform apply -auto-approve tfplan
