@@ -60,6 +60,22 @@ jobs:
       - name: Terraform Init
         working-directory: environments/${{ inputs.environment }}/${{ inputs.region }}
         run: terraform init -input=false
+
+      - name: Resolve AMI ID
+        id: resolve-ami
+        run: |
+          AMI_ID=$(aws ec2 describe-images \
+            --owners self \
+            --filters "Name=tag:Project,Values=visitor-log-system" \
+            --filters "Name=tag:Env,Values=dev" \
+            --query "Images | sort_by(@, &Tags[?Key=='BuildTime'].Value|[0])[-1].ImageId" \
+            --output text)
+
+          if [ "$AMI_ID" = "None" ] || [ -z "$AMI_ID" ]; then
+            echo "❌ No AMI found, failing pipeline."
+            exit 1
+          fi
+          echo "ami_id=$AMI_ID" >> $GITHUB_OUTPUT
       
       - name: Terraform Destroy
         if: github.ref == 'refs/heads/main'
